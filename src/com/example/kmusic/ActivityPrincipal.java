@@ -20,12 +20,12 @@ public class ActivityPrincipal extends Activity {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.activity_principal);
 	        
-	        adaptador Adaptador = new adaptador(this);
+	        adaptador_listviewCanciones_Top adapter_listview_canciones = new adaptador_listviewCanciones_Top(this);
 	            
 	      
-	        lstOpciones = (ListView)findViewById(R.id.LstOpciones);
+	        lstOpciones = (ListView)findViewById(R.id.Lst_canciones_top);
 	        registerForContextMenu(lstOpciones);
-	        lstOpciones.setAdapter(Adaptador);
+	        lstOpciones.setAdapter(adapter_listview_canciones);
 	 }
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo){
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -41,20 +41,16 @@ public class ActivityPrincipal extends Activity {
 		
 		String nombre;
 		
-		nombre=new adaptador(this.getParent()).lista2.get(info.position).cancion;
+		nombre=new adaptador_listviewCanciones_Top(this.getParent()).list_resultados_Fmtop.get(info.position).getCancion();
 		try{
 			
 		if(item.getTitle() == "Ver video"){
-			System.out.println("entro la concha de ");
-			
-			cambio(nombre);
-			
+						
+			cambio(nombre);	
 		}
 		else{
-			return false;
-			
+			return false;	
 		}
-		
 		}
 		catch (Exception e){
 			return true;

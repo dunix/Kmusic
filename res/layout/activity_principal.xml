@@ -18,7 +18,7 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/LstOpciones"
+        android:layout_below="@+id/Lst_canciones_top"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80sp"
         android:text="Busqueda Personalizada" />
@@ -44,7 +44,7 @@
         android:textSize="20sp" />
 
     <ListView
-        android:id="@+id/LstOpciones"
+        android:id="@+id/Lst_canciones_top"
         android:layout_width="141dp"
         android:layout_height="314dp"
         android:layout_alignParentLeft="true"
@@ -52,7 +52,7 @@
     </ListView>
 
     <ListView
-        android:id="@+id/LstArtistas"
+        android:id="@+id/Lst_artistas_top"
         android:layout_width="141dp"
         android:layout_height="314dp"
         android:layout_alignParentRight="true"

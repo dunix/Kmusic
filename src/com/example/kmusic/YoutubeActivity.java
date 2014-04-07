@@ -14,7 +14,7 @@ import com.google.android.youtube.player.YouTubePlayerView;
 
 public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {
 
-	String cancion;
+	private String cancion;
 	
 	protected void onCreate(Bundle savedInstanceState) {
     	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -29,10 +29,6 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
                  
         YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
         youTubeView.initialize("AI39si4t1TOuQ5c_TtVD1aJRrdl2qARenjJqNMpttfmVTKnGe5G2MnQu86htSHjjIvAMHVCY3R3jml3zoz0Do-Huw5iWNHP99g", this);
-		 
-       // Log.w("MainActivity", "This is a warning");
-        
-        
     }
 	  @Override
 	  public void onInitializationFailure(Provider arg0,YouTubeInitializationResult arg1) {
@@ -44,7 +40,6 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
 	  public void onInitializationSuccess(Provider provider, YouTubePlayer player, boolean wasRestored){
 	     	   
 	    if (!wasRestored) {
-	    		
 	    		Intent i=getIntent();
 	    		String nombre=i.getStringExtra("cancion");
 	    		try {
@@ -54,7 +49,6 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	              //player.loadVideo("KPPoEPAbC5s");
 	              
 	            } 
 	  }
