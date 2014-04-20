@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="47dp"
+        android:background="#000000"
+        android:text="Recomendaciones"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="center"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Lst_canciones_top"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80sp"
+        android:text="Busqueda Personalizada" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:layout_marginLeft="16dp"
+        android:textSize="20sp"
+        android:text="Canciones" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/button1"
+        android:layout_below="@+id/textView1"
+        android:layout_marginRight="14dp"
+        android:text="Artista"
+        android:textSize="20sp" />
+
+    <ListView
+        android:id="@+id/Lst_canciones_top"
+        android:layout_width="141dp"
+        android:layout_height="314dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView2" >
+    </ListView>
+
+    <ListView
+        android:id="@+id/Lst_artistas_top"
+        android:layout_width="141dp"
+        android:layout_height="314dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textView3" >
+    </ListView>
+
+</RelativeLayout>
