@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">KMusic</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_buscar">Busqueda</string>
+    <string name="title_activity_listing">Listing</string>
+    <string name="title_activity_principal">Principal</string>
+    
+    <string name="app_id">645436365546409</string>
+    
+    <string name="tab_New_Artist">Descubrir artistas</string>
+    <string name="tab_Personalized_Search">Busqueda personalizada</string>
+    <string name="tab_Info_Artist">Biografía</string>
+    <string name="tab_Albums">Albums</string>
+    <string name="tab_Extras">Extras</string>
+    
+    
+    	
+    <string name="Artista">Artista</string>	
+    <string name="Album">Album</string>	
+    <string name="Cancion">Canción</string>	
+     <string name="Buscar">Buscar</string>
+     <string name="Seleccion">Seleccione una opción de busqueda:</string>
+     <string name="Pais">País</string>	
+     <string name="Genero">Género</string>	
+     <string name="Similar">Artista similar</string>	
+     <string name="Compartir">Compartir</string>
+      				
+ 
+
+</resources>
