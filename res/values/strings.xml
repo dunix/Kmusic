@@ -13,7 +13,7 @@
     <string name="tab_Personalized_Search">Busqueda personalizada</string>
     <string name="tab_Info_Artist">Biografía</string>
     <string name="tab_Albums">Albums</string>
-    <string name="tab_Extras">Extras</string>
+    <string name="tab_Extras">Concierto</string>
     
     
     	
@@ -26,6 +26,7 @@
      <string name="Genero">Género</string>	
      <string name="Similar">Artista similar</string>	
      <string name="Compartir">Compartir</string>
+     <string name="Comprar">Comprar</string>
       				
  
 

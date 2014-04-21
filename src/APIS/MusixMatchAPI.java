@@ -1,8 +1,5 @@
 package APIS;
 import java.util.ArrayList;
-
-import org.json.JSONException;
-
 import ObjectsAPIS.ObjectMusicXmatch;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -11,9 +8,10 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class MusixMatchAPI {
-	
+	//Atributos de la clase
 	private ArrayList<ObjectMusicXmatch> List_musicX=new ArrayList<ObjectMusicXmatch>();
 	
+	// Metodo que busca la letra de un cancion
 	public String SearchLyric(String Artist,String Track){
 		String lyric=new String();
 			HttpResponse<JsonNode> request = null;
@@ -31,6 +29,7 @@ public class MusixMatchAPI {
 		return lyric;
 	}
 	
+//--------Metodo que busca canciones
 public ArrayList<ObjectMusicXmatch> SearchTrack(String Track) {
 		
 		HttpResponse<JsonNode> request = null;
@@ -68,6 +67,8 @@ public ArrayList<ObjectMusicXmatch> SearchTrack(String Track) {
 	}
 	
 
+
+//Metodo que busca las canciones de un artista
 
 public ArrayList<ObjectMusicXmatch> SearchArtistTrack(String Artist,String Track) {
 	

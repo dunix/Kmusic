@@ -1,0 +1,39 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <fragment
+        android:id="@+id/FrgTopTracks"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/Topdecancioneslbl"
+        android:layout_alignParentRight="true"
+        class="Fragments.FragmentTopTracks" />
+
+    <TextView
+        android:id="@+id/RecomendacionesTopTrackslbl"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:background="#FFC0C0C0"
+        android:gravity="center"
+        android:text="Recomendaciones"
+        android:textColor="#FF000000"
+        android:textSize="@dimen/Tamano1" />
+
+    <TextView
+        android:id="@+id/Topdecancioneslbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+      	android:layout_marginTop="15dp"
+        android:layout_below="@+id/RecomendacionesTopTrackslbl"
+        android:text="Top de canciones \n\n"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="italic" />
+
+</RelativeLayout>

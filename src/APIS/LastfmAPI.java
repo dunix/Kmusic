@@ -15,6 +15,7 @@ import ObjectsAPIS.ObjectLastFM;
 import de.umass.lastfm.Artist;
 
 public class LastfmAPI {
+	//Atributos de las clases
 	private ArrayList<ObjectLastFM> ListFM=new ArrayList<ObjectLastFM>();
 	private static final String key = "2e321ea1e5efd535b9a261c211cefe78";
 	
@@ -24,11 +25,7 @@ public class LastfmAPI {
 		
 	}
 	
-	
-	
-	
-	
-	
+	// Metodo manejador de los Tops
 	public ArrayList<ObjectLastFM> transactionhandler(String parameterSearch, String value){
 		if(parameterSearch.equals("TopTracks")){
 			return getTopTracks();
@@ -44,6 +41,7 @@ public class LastfmAPI {
 		
 	}
 	
+	// Metodo que busca la Imagen de un artista
 	
 	public String getImagen(String Artista){
 		String Imagen="";
@@ -172,12 +170,15 @@ public class LastfmAPI {
 		for(Album newAlbum:Albums){
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setAlbum(newAlbum.getName());
+			if(newAlbum.getImageURL(ImageSize.MEDIUM)!=null){
+				newObjectLastFM.setImagen(newAlbum.getImageURL(ImageSize.LARGE));
+			}
 			ListFM.add(newObjectLastFM);
 			System.out.println(newObjectLastFM.getAlbum());
 		}
 		return ListFM;
 	}
-	
+	// Metodo de busqueda de canciones
 	public  ArrayList<ObjectLastFM> getTracks(String nameArtist,String nameAlbum ){
 		Album newAlbum=Album.getInfo(nameArtist, nameAlbum, key);
 		for(Track newTrack:newAlbum.getTracks()){

@@ -11,6 +11,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:textSize="25dp"
+        android:layout_toLeftOf="@+id/imagenbio"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
@@ -19,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="24dp"
+        
         />
 
     <TextView

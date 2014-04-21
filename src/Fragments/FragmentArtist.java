@@ -5,17 +5,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import com.echonest.api.v4.Artist;
+
 import com.echonest.api.v4.EchoNestException;
 import com.example.kmusic.R;
 
 import APIS.EchonestAPI;
 import APIS.LastfmAPI;
-import Fragments.FragmentNewArtists.SearchAsyncParam;
+
 import ObjectsAPIS.ObjectEchonest;
 import ObjectsAPIS.ObjectInfo;
-import ObjectsAPIS.ObjectLastFM;
-import android.annotation.SuppressLint;
+
+import Seguridad.InternetStatus;
+
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -28,28 +29,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-
+//Fragment que posee informacion del artista, como biografia...
 
 public class FragmentArtist extends Fragment {
 	EchonestAPI EchoAPI;
-	
-	
 	Bitmap bitmap;
 	
 
-	
 	public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
 		View view=inflater.inflate(R.layout.result_tab_informacion_artista_, container, false);
 		Intent intent=getActivity().getIntent();
-		System.out.println("LA CONCHA" + intent.getStringExtra("artist"));
+		
 		TextView Artist= (TextView) view.findViewById(R.id.BioArtista);
+		Artist.setMovementMethod(new ScrollingMovementMethod());
 		ImageView imag  = (ImageView)view.findViewById(R.id.imagenbio);
 		Artist.setText(intent.getStringExtra("artist"));
 		TextView c= (TextView) view.findViewById(R.id.Biografia);
-    	SearchAsyncParam SearchAsyn = new SearchAsyncParam(imag,c);
-    	SearchAsyn.execute(intent.getStringExtra("artist"));
 		
+		if (new InternetStatus().haveNetworkConnection(this.getActivity())){
+			SearchAsyncParam SearchAsyn = new SearchAsyncParam(imag,c);
+			SearchAsyn.execute(intent.getStringExtra("artist"));
+		}
+		else{
+			Toast.makeText(getActivity(), "Advertencia no tiene acceso a internet", Toast.LENGTH_SHORT).show();
+			
+		}
 		return view;
 	}
 	
@@ -60,8 +66,7 @@ public class FragmentArtist extends Fragment {
 		
 	}
 	
-	
-	
+	// --- Metodo que parse los objectos proveniente del API al un objectoinfo para enviarlo al adaptador
 	public void ParseList(ObjectEchonest Echonest){
 		ObjectInfo info = new ObjectInfo();
 		info.artist = Echonest.getArtist();
@@ -70,6 +75,7 @@ public class FragmentArtist extends Fragment {
 	}
 	
 	
+	/// Clase asincrona que se conectado a los API para traer la informacion de un artista
 	
 	public class SearchAsyncParam extends AsyncTask<String, Void, Boolean> {
 		ArrayList<ObjectEchonest> List_Echonests = new ArrayList<ObjectEchonest>();
@@ -86,8 +92,6 @@ public class FragmentArtist extends Fragment {
 		@Override
 		protected Boolean doInBackground(String... data) {
 			
-		  	  
-			System.out.println("DATAAAAAAAAAAAAAAAAAAAAAAAA igual a -> "+data[0]);
 			try {
 				LastfmAPI image= new LastfmAPI();
 			  	String url=image.getImagen(data[0]);
@@ -95,20 +99,21 @@ public class FragmentArtist extends Fragment {
 				EchoAPI = new EchonestAPI();
 				List_Echonests = EchoAPI.searchArtistBiography(data[0]);
 				List_Echonests.get(0).SetImagen(url);
-				//System.out.println("holaaa"+List_Echonests.get(0).getImagen());
 				bitmap=getBitmapImagen(List_Echonests.get(0).getImagen());
-			} catch (EchoNestException e) {
+			} 
+			
+			catch (EchoNestException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return false;
 			}
 			
-			
-			
-
-		    return true;
+			return true;
 		}
 		protected void onProgressUpdate(Integer... values) {
 		}
+		
+		//Metodo que extrae la imagen desde un url y la carga al Imageview
 		
 		public Bitmap getBitmapImagen(String imagen){
 			
@@ -143,17 +148,20 @@ public class FragmentArtist extends Fragment {
 			return null;
 		}
 		
-		
-		
-		
 		protected void onPostExecute( Boolean  response) {
-			
-			Imagen.setImageBitmap(bitmap);
-			bio.setMovementMethod(new ScrollingMovementMethod());
-			bio.setText(List_Echonests.get(0).getBiography());
+			if (response){
+				Imagen.setImageBitmap(bitmap);
+				bio.setMovementMethod(new ScrollingMovementMethod());
+				bio.setText(List_Echonests.get(0).getBiography());
+			}
+			else{
+				Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
+			}
+		}
 		
-		}	
 	}
+	
+	
 }	
 
 

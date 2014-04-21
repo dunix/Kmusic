@@ -1,6 +1,6 @@
 package ObjectsAPIS;
+//Clase objeto del API LastFM
 
-import java.net.URL;
 
 public class ObjectLastFM {
 	
@@ -12,7 +12,9 @@ public class ObjectLastFM {
 	private String imagen="";
 	public ObjectLastFM(){}
 	
-	//-----------------Metodos gets------------------------------
+	/*
+	 * Metodos gets de los atributos
+	 */
 	
 	public String getCancion(){
 		
@@ -44,7 +46,9 @@ public class ObjectLastFM {
 		return imagen;
 		}
 
-	//-----------------Metodos Sets------------------------------
+	/*
+	 * Metodos sets de los atributos
+	 */
 	
 	public void setArtista(String new_artista){
 		

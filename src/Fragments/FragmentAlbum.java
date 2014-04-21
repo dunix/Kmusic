@@ -1,37 +1,42 @@
 package Fragments;
 
+
 import java.util.ArrayList;
 
-import com.echonest.api.v4.EchoNestException;
+
 import com.example.kmusic.R;
-import com.example.kmusic.ResultActivity;
+
 import com.example.kmusic.TracksForAlbumActivity;
 
-import APIS.EchonestAPI;
+
 import APIS.LastfmAPI;
-import Fragments.FragmentNewArtists.Adaptador;
-import ObjectsAPIS.ObjectEchonest;
-import ObjectsAPIS.ObjectInfo;
+
 import ObjectsAPIS.ObjectLastFM;
-import ObjectsAPIS.ObjectMusicXmatch;
-import ObjectsAPIS.ObjectSpotify;
+
+import Seguridad.InternetStatus;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+
+// Fragment que maneja los albums encontrados para un artista
 
 public class FragmentAlbum extends Fragment {
 	ArrayList<ObjectLastFM> List_LastFM;
-	ListView lstListado=null;
+	ListView lstListado=null;				// Lista que contiene los datos para el adaptor del listview
 	Fragment fragment;
 	
 	
@@ -40,18 +45,28 @@ public class FragmentAlbum extends Fragment {
 		View v = inflater.inflate(R.layout.result_tab_album, container, false);
 		fragment=this;
 		Intent intent=getActivity().getIntent();
-		System.out.println(intent.getStringExtra("artist")+" "+intent.getStringExtra("album")+" "+intent.getStringExtra("track") +"  "+"Si es esteeee");
+		
 		TextView t= (TextView)v.findViewById(R.id.NombreArtistaAlbumTab);
-		t.setText(intent.getStringExtra("artist"));//cambiar
+		t.setText(intent.getStringExtra("artist")+"\n");
 		
 		lstListado = (ListView)v.findViewById(R.id.ListViewAlbumResult);
-		SearchAsyncAlbums AsynAlbums=new SearchAsyncAlbums();
-		AsynAlbums.execute(intent.getStringExtra("artist"),intent.getStringExtra("album"));
+		
+		if (new InternetStatus().haveNetworkConnection(getActivity())){
+			SearchAsyncAlbums AsynAlbums=new SearchAsyncAlbums();
+			AsynAlbums.execute(intent.getStringExtra("artist"),intent.getStringExtra("album"));
+		}
+		else{
+			Toast.makeText(getActivity(), "Advertencia no tiene acceso a internet", Toast.LENGTH_SHORT).show();
+			
+		}
         return v;
 	}
 	
 	
-	
+	/*
+	 	Clase asincrona encargada de conectarse con el API  y obtener los datos de los albums que se le cargan al adaptador
+	 	
+	*/
 	
 	 class SearchAsyncAlbums extends AsyncTask<String, Void, Boolean> {
 			LastfmAPI LastFMAPI;
@@ -65,53 +80,61 @@ public class FragmentAlbum extends Fragment {
 			
 			@Override
 			protected Boolean doInBackground(String... data) {
-				
-				Artist=data[0];
-				if(data[1].equals("")){
-					LastFMAPI=new LastfmAPI();
-					List_LastFM=LastFMAPI.getAlbums(data[0]);	
-					System.out.println("Viene vacio");
+				try{
+					Artist=data[0];
+					if(data[1].equals("")){
+						LastFMAPI=new LastfmAPI();
+						List_LastFM=LastFMAPI.getAlbums(data[0]);	
+					}
+					
+					else{
+						
+						List_LastFM=new ArrayList<ObjectLastFM>();
+						ObjectLastFM newObjectLastfm=new ObjectLastFM();
+						newObjectLastfm.setArtista(data[0]);
+						newObjectLastfm.setAlbum(data[1]);
+						List_LastFM.add(newObjectLastfm);
+					}
 				}
-				
-				else{
-					///Sele manda el album que viene de una vez
-					List_LastFM=new ArrayList<ObjectLastFM>();
-					ObjectLastFM newObjectLastfm=new ObjectLastFM();
-					newObjectLastfm.setArtista(data[0]);
-					newObjectLastfm.setAlbum(data[1]);
-					List_LastFM.add(newObjectLastfm);
+				catch (Exception e){
+					e.printStackTrace();
+					return false;
+					
 				}
-				
-				
-				
-				
-			    return true;
+			return true;
+			
 			}
+			
 			protected void onProgressUpdate(Integer... values) {
 			}
 			
-			
-			
 			protected void onPostExecute( Boolean  response) {
-				
-				//lstListado = (ListView)fragment.getActivity().findViewById(R.id.busqueda);
-				lstListado.setAdapter(new Adaptador(fragment));
-				lstListado.setOnItemClickListener(new OnItemClickListener() {
+				if (response){
+					lstListado.setAdapter(new Adaptador(fragment));
+					lstListado.setOnItemClickListener(new OnItemClickListener() {
 		            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 		            	String selectedAlbum =((TextView)v.findViewById(R.id.NombreAlbum)).getText().toString();
 		            	
 		            	Intent i = new Intent(fragment.getActivity(), TracksForAlbumActivity.class);
 		        		i.putExtra("artist", Artist);
 		        		i.putExtra("album", selectedAlbum);
-		        
-		        		//required to launch from non-activity
+		        		i.putExtra("urlImagAlbum", List_LastFM.get(position).getImage());
 		        		startActivity(i);
 		            	
 		            }
 		        });
-				
+				}
+				else{
+					Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
+				}
 			}	
-		}	
+		
+	 }	
+	 
+	 /*
+	  * 	Clase adaptador que carga los datos al listview en el tab de albums
+	  * 
+	  */
 	 
 	 class Adaptador extends ArrayAdapter<ObjectLastFM>{
 			Activity context;
@@ -130,19 +153,19 @@ public class FragmentAlbum extends Fragment {
 					LayoutInflater inflater = context.getLayoutInflater();
 					View item = inflater.inflate(R.layout.components_listresult_album, null);
 					
-						TextView LblArtista  = (TextView)item.findViewById(R.id.NombreAlbum);
-						LblArtista.setText(List_LastFM.get(position).getAlbum());
-						
-						
+					TextView LblArtista  = (TextView)item.findViewById(R.id.NombreAlbum);
+					LblArtista.setText(List_LastFM.get(position).getAlbum());
 					
 					
-									
+					
 					return (item);
 					
 				}
 			
 			
 		}
-
-
+	 
+	 
 }
+
+

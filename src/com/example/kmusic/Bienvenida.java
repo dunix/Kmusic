@@ -1,34 +1,49 @@
 package com.example.kmusic;
 
-import Fragments.FragmentTopArtists;
-import Fragments.FragmentTopTracks;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import asincrona.AsincronicaBienvenida;
 
 public class Bienvenida extends Activity {
-
+	AsincronicaBienvenida a = new AsincronicaBienvenida();
 	
 	public  static ProgressDialog pDialog;
+	public boolean isActivityisRestaring=false;
 	
 	public Bienvenida() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-    	
+		
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bienvenida);
         
-    	AsincronicaBienvenida a = new AsincronicaBienvenida(getApplicationContext());
+        a = new AsincronicaBienvenida(getApplicationContext());
     	a.execute();       
         
     }
-
+	
+	// Metodo para poder determinar si se reinicio el activity
+	@Override
+	protected void onRestart(){
+      super.onRestart();
+      isActivityisRestaring=true;
+     
+	}
+	
+	
+	// Metodo para poder hacer resume del activity pausado
+	@Override
+	protected void onResume(){
+      super.onResume();
+      if(isActivityisRestaring){
+    	a = new AsincronicaBienvenida(getApplicationContext());
+      	a.execute();         
+      }
+      
+	}
 
 }

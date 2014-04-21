@@ -1,8 +1,8 @@
 package com.example.kmusic;
 
-import Fragments.FragmentArtist;
+
 import Fragments.FragmentNewArtists;
-import Fragments.FragmentResultSearch;
+import Fragments.FragmentCustomSearch;
 import android.app.Fragment;
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -11,8 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -20,6 +19,8 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+
+// Fragment encargado de manejar los tabs y su redireccionamiento hacia los nuevos fragments
 public class TabsFragment extends Fragment  implements OnTabChangeListener{
 	private static final String TAG = "FragmentTabs";
 	public static final String TAB_New_Artist = "1";
@@ -37,7 +38,7 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mRoot = inflater.inflate(R.layout.tabs_fragment, null);
+		mRoot = inflater.inflate(R.layout.tabs_search, null);
 		
 		mTabHost = (TabHost) mRoot.findViewById(android.R.id.tabhost);
 		setupTabs();
@@ -57,16 +58,16 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 	}
 
 	private void setupTabs() {
-		mTabHost.setup(); // important!
+		mTabHost.setup();
 		mTabHost.addTab(newTab(TAB_New_Artist, R.string.tab_New_Artist, R.id.tab_1));
 		mTabHost.addTab(newTab(TAB_Personalized_Search, R.string.tab_Personalized_Search, R.id.tab_2));
 	}
 
+	
 	private TabSpec newTab(String tag, int labelId, int tabContentId) {
 		Log.d(TAG, "buildTab(): tag=" + tag);
 
-		View indicator = LayoutInflater.from(getActivity()).inflate(
-				R.layout.tab,
+		View indicator = LayoutInflater.from(getActivity()).inflate(R.layout.tab,
 				(ViewGroup) mRoot.findViewById(android.R.id.tabs), false);
 		((TextView) indicator.findViewById(R.id.text)).setText(labelId);
 
@@ -76,6 +77,8 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 		return tabSpec;
 	}
 
+	
+// Método encargado de capturar el cambio en los tabs
 	@Override
 	public void onTabChanged(String tabId) {
 		Log.d(TAG, "onTabChanged(): tabId=" + tabId);
@@ -104,6 +107,9 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 		}
 	}
 
+	
+	
+// Método encargado de realizar el cambio de tabs con el fragment asociado	
 	private void updateTab(String tabId, int placeholder) {
 		FragmentManager fm = getFragmentManager();
 
@@ -115,7 +121,7 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 			}
 			if (tabId.equals("2")){
 				fm.beginTransaction()
-						.replace(placeholder, new FragmentResultSearch(), tabId)
+						.replace(placeholder, new FragmentCustomSearch(), tabId)
 						.commit();
 				}
 		}

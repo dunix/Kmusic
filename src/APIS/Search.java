@@ -1,12 +1,12 @@
 package APIS;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
@@ -17,10 +17,11 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
 
+// Clase que busca el identificador de un video en youtube
 public class Search {
-	 private static String PROPERTIES_FILENAME = "youtube.properties";
+
+	// Atributos de conexion y manejo de datos
 
 	  /** Global instance of the HTTP transport. */
 	  private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
@@ -33,6 +34,8 @@ public class Search {
 
 	  /** Global instance of Youtube object to make all API requests. */
 	  private static YouTube youtube;
+	  
+	  // Metodo que recibe el nombre de la cancion que desea buscar y devuelve el identificador de la misma
 	  
 	  public String busqueda(String param) throws IOException{
 		  
@@ -93,7 +96,7 @@ public class Search {
 
 	      // Double checks the kind is video.
 	      if (rId.getKind().equals("youtube#video")) {
-	        Thumbnail thumbnail = (Thumbnail)singleVideo.getSnippet().getThumbnails().get("default");
+	      
 
 	        return rId.getVideoId().toString();
 	        //System.out.println(" Title: " + singleVideo.getSnippet().getTitle());

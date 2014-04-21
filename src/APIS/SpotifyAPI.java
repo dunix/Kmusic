@@ -5,17 +5,17 @@ import java.util.ArrayList;
 import org.json.JSONException;
 
 import ObjectsAPIS.ObjectSpotify;
-import android.os.AsyncTask;
-import android.widget.TextView;
-
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class SpotifyAPI  {
+	
+	//Atributos de la clase
 	private ArrayList<ObjectSpotify> List_spotify=new ArrayList<ObjectSpotify>();
 	
+	//------Metodo que busca una cancion
 	public ArrayList<ObjectSpotify> SearchTrack(String Track) {
 		
 		HttpResponse<JsonNode> request = null;
@@ -32,7 +32,7 @@ public class SpotifyAPI  {
 					newObjectSpotify.nombre_album=request.getBody().getObject().getJSONArray("tracks").getJSONObject(cont).getJSONObject("album").get("name").toString();
 					newObjectSpotify.nombre_artista=request.getBody().getObject().getJSONArray("tracks").getJSONObject(cont).getJSONArray("artists").getJSONObject(0).get("name").toString();
 					newObjectSpotify.nombre_cancion=request.getBody().getObject().getJSONArray("tracks").getJSONObject(cont).get("name").toString();
-				//	System.out.println("concha sera este_ "+ request.getBody().getObject().getJSONArray("tracks").getJSONObject(cont).get("name").toString());
+				
 					
 					List_spotify.add(newObjectSpotify);
 					cont++;

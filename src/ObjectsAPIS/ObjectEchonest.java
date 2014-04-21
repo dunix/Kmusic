@@ -1,10 +1,17 @@
 package ObjectsAPIS;
 
+// Clase objeto del API Echonest
 public class ObjectEchonest {
+	
+	//Atributos del objeto
+	
 	String Artists="";
 	String Biography="";
 	String Imagen="";
 	
+/*
+ * Metodos Sets de los atributos
+ */
 	
 	public void SetArtists(String artista){
 		
@@ -18,6 +25,10 @@ public class ObjectEchonest {
 		
 		Imagen=image;
 	}
+	
+	/*
+	 * Metodos gets de los atributos
+	 */
 	
 	public String getArtist(){
 		

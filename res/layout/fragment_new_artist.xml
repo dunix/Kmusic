@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/artist"
+        android:id="@+id/selecionar_artista"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/Seleccion"
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/artist" >
+        android:layout_below="@+id/selecionar_artista" >
 
         <RadioButton
             android:id="@+id/radio0"

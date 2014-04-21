@@ -2,9 +2,7 @@ package com.example.kmusic;
 
 import Fragments.FragmentAlbum;
 import Fragments.FragmentArtist;
-import Fragments.FragmentExtra;
-import Fragments.FragmentNewArtists;
-import Fragments.FragmentResultSearch;
+
 import Fragments.YoutubeFragment;
 import android.app.Fragment;
 import android.app.Activity;
@@ -15,15 +13,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
+
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+
+// Fragment encargado de manejar los tabs de los resultados de las busquedas realizadas
 public class TabsFragmentResult extends Fragment  implements OnTabChangeListener{
 	private static final String TAG = "FragmentTabsResult";
 	public static final String TAB_Info_Artist = "1";
@@ -92,6 +89,7 @@ public class TabsFragmentResult extends Fragment  implements OnTabChangeListener
 		return tabSpec;
 	}
 
+	// Método encargado de capturar el cambio en los tabs
 	@Override
 	public void onTabChanged(String tabId) {
 		Log.d(TAG, "onTabChanged(): tabId=" + tabId);
@@ -118,6 +116,7 @@ public class TabsFragmentResult extends Fragment  implements OnTabChangeListener
 		}
 	}
 
+	// Método encargado de realizar el cambio de tabs con el fragment asociado	
 	private void updateTab(String tabId, int placeholder) {
 		FragmentManager fm = getFragmentManager();
 

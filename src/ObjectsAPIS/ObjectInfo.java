@@ -1,10 +1,13 @@
 package ObjectsAPIS;
-
+//Clase objeto del info utilizado para los adaptadores
 public class ObjectInfo {
 	public String artist="";
 	public String album="";
 	public String cancion="";
 	
+	/*
+	 * Metodos gets de los atributos
+	 */
 	public String getCancion(){
 		
 		return cancion;
@@ -23,7 +26,9 @@ public class ObjectInfo {
 		}
 
 		
-		//-----------------Metodos Sets------------------------------
+		/*
+		 * Metodos sets de los atributos
+		 */
 		
 		public void setArtista(String new_artista){
 			

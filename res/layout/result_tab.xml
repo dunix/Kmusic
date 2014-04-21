@@ -6,9 +6,10 @@
 	android:gravity="center"
 	android:padding="10dp"
 	android:background="@drawable/tab_selector">
+	
     <TextView
 		android:id="@+id/text"
-		android:layout_width="100dp"
+		android:layout_width="99dp"
 		android:layout_height="wrap_content"
 		android:textSize="@dimen/text_small"
 		android:textStyle="bold"

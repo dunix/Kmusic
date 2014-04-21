@@ -9,17 +9,19 @@
         android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/img"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo" 
-       android:configChanges="keyboardHidden|orientation|screenSize">>
+        
+      >
         <activity
             android:name="com.example.kmusic.Bienvenida"
             android:label="@string/app_name" 
              android:configChanges="keyboardHidden|orientation|screenSize"
+             android:screenOrientation="portrait"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,32 +31,38 @@
         </activity>
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id" />
         <activity
-            android:name="com.example.kmusic.MainActivity"
+            android:name="com.example.kmusic.MainTopActivity"
             android:label="@string/app_name" 
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
             >
         </activity>
          <activity
             android:name="com.example.kmusic.TracksForAlbumActivity"
             android:label="@string/app_name"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+            android:configChanges="keyboardHidden|orientation|screenSize" 
+            android:screenOrientation="portrait">
+            
         </activity>
         <activity
             android:name="com.example.kmusic.YoutubeActivity"
             android:label="@string/app_name"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+            android:configChanges="keyboardHidden|orientation|screenSize" 
+            android:screenOrientation="portrait">
         </activity>
         
         <activity
             android:name="com.example.kmusic.ResultActivity"
             android:label="@string/app_name"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait" >
         </activity>
         
         <activity
-            android:name="com.example.kmusic.Main"
+            android:name="com.example.kmusic.SearchActivity"
             android:label="@string/app_name"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+            android:configChanges="keyboardHidden|orientation|screenSize" 
+            android:screenOrientation="portrait">
         </activity>        
     </application>
 

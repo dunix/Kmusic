@@ -1,30 +1,26 @@
+/*ITCR Curso IC8041
+ * Aplicaciones móviles
+ * Aplicación kmusic
+ * Nombre de clase: FragmentTopTracks
+ * Descripción: Fragment que se encarga de mostrar el top de canciones 
+ * obtenidas mediante el API de LastFm 
+ * */
 package Fragments;
 
 import java.io.IOException;
-import APIS.MusixMatchAPI;
+
 import APIS.Search;
-import android.content.Intent;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.text.method.ScrollingMovementMethod;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.kmusic.R;
-import com.example.kmusic.YoutubeActivity.Asyncrona;
+
+
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayer.OnInitializedListener;
 import com.google.android.youtube.player.YouTubePlayerFragment;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayerView;
+
 import com.google.android.youtube.player.YouTubePlayer.Provider;
 
 public class YoutubeFragment extends YouTubePlayerFragment  {
@@ -33,11 +29,10 @@ private static String Artista;
 
 public YoutubeFragment() { }
 
+// Metodo que inicializa la clase con youtube con el artista selecionado
 public static YoutubeFragment newInstance(String url) {
-
 	YoutubeFragment f = new YoutubeFragment();
-
-    Bundle b = new Bundle();
+	Bundle b = new Bundle();
     b.putString("url", url);
     
   
@@ -48,6 +43,8 @@ public static YoutubeFragment newInstance(String url) {
     return f;
 }
 
+
+//Metodo encargado de inicializar el video de youtube dentro del fragment con el concierto asociado a la busqueda realizada
 private void init() {
 
     initialize("AI39si4t1TOuQ5c_TtVD1aJRrdl2qARenjJqNMpttfmVTKnGe5G2MnQu86htSHjjIvAMHVCY3R3jml3zoz0Do-Huw5iWNHP99g", new OnInitializedListener() {
@@ -55,7 +52,7 @@ private void init() {
         @Override
         public void onInitializationFailure(Provider arg0, YouTubeInitializationResult arg1) { 
         	
-        	System.out.println("xqqqqqq????");
+        	
         }
 
         @Override
@@ -70,6 +67,7 @@ private void init() {
     });
 }
 
+//Metodo de clase asincronica encargada de obtener el id del video para poder reproducir el video
 public class YoutubeAsyn extends AsyncTask<String , Void, Boolean> {
 	YouTubePlayer player;
 	String idVideo;

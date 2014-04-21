@@ -14,9 +14,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 
-import com.example.kmusic.MainActivity;
 import com.example.kmusic.R;
 import com.example.kmusic.YoutubeActivity;
 import com.facebook.UiLifecycleHelper;
@@ -25,6 +23,7 @@ import com.facebook.widget.FacebookDialog;
 import APIS.LastfmAPI;
 import APIS.Search;
 import ObjectsAPIS.ObjectLastFM;
+import Seguridad.InternetStatus;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -32,9 +31,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
+
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -48,12 +48,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import de.umass.lastfm.Caller;
-import de.umass.lastfm.Chart;
-import de.umass.lastfm.ImageSize;
-import de.umass.lastfm.PaginatedResult;
-import de.umass.lastfm.Track;
 
+//Fragement encargado de consultar y visualiza el top de canciones según LastFM
 public class FragmentTopTracks  extends Fragment{
 	//Atributos de clase
 	
@@ -62,6 +60,7 @@ public class FragmentTopTracks  extends Fragment{
 	public  ArrayList<ObjectLastFM> lista_result_Fm = new ArrayList<ObjectLastFM>();
 	public Fragment fragment;
 	private static ProgressDialog pDialog;
+	private InternetStatus Internet_Status=new InternetStatus();
 
 	
 		
@@ -78,10 +77,20 @@ public class FragmentTopTracks  extends Fragment{
     	pDialog.setCancelable(true);
     	pDialog.setMax(100);
     	
-		LastAsync a = new LastAsync(this.getActivity(), pDialog);
-    	a.execute();
+    	
+    	if (Internet_Status.haveNetworkConnection(getActivity())){
+			LastAsync a = new LastAsync(this.getActivity(), pDialog);
+	    	a.execute();
+	    	
+    	}
+    	else{
+    		System.out.println("No hay internet");
+    		Toast.makeText(getActivity(), "Por favor revisa tu conexión a Internet", Toast.LENGTH_SHORT).show();
+    		pDialog.dismiss();
+    	}
 		return inflater.inflate(R.layout.fragment_top_last_fm, container, false);
 	}
+
 	
 	@Override
 	public void onActivityCreated(Bundle state) {
@@ -106,6 +115,8 @@ public class FragmentTopTracks  extends Fragment{
         });
     }
 	
+	
+	// Inicializa  el menu de opciones dentro el top de tracks
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo){
 		super.onCreateContextMenu(menu, v, menuInfo);
 
@@ -148,17 +159,17 @@ public class FragmentTopTracks  extends Fragment{
 	}
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
+		
 		this.getActivity().getMenuInflater().inflate(R.menu.listing, menu);
 		return true;
 	}
 	
+	// Metodo encargado de realizar el cambio de activity hacia la de youtube con el video correspondiente a la canción
 	public void cambio(String Artista,String Cancion){
 		
 		Intent i = new Intent(this.getActivity(), YoutubeActivity.class);
 		i.putExtra("artista", Artista);
 		i.putExtra("cancion", Cancion);
-		//required to launch from non-activity
 		startActivity(i);
 		
 	}
@@ -166,6 +177,7 @@ public class FragmentTopTracks  extends Fragment{
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	
+// Adaptador custom encargo de llenar el listview con los tops de canciones según lastfm	
 	class Adaptador extends ArrayAdapter<ObjectLastFM>{
 		Activity context;
 		
@@ -195,8 +207,10 @@ public class FragmentTopTracks  extends Fragment{
 								
 				return (item);
 				
-			}
+		}
 	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+				
 	public class AsyncronaSetImage extends AsyncTask<String , Void, Boolean> {
 		String imagen;
 		ImageView imag;
@@ -227,11 +241,10 @@ public class FragmentTopTracks  extends Fragment{
 		}
 		
 		public Bitmap getBitmapImagen(String imagen){
-			
+			// Realiza el set de la imagen correspondiente a listview de top tracks
 			try{
 				
 				if (imagen!=""){
-					//System.out.println(imagen);
 					URL url = new URL(imagen);
 					HttpURLConnection connection= (HttpURLConnection) url.openConnection();
 					connection.setDoInput(true);
@@ -261,11 +274,10 @@ public class FragmentTopTracks  extends Fragment{
 		}
 	}	
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7
+// Clase asincronica encargada de realizar la consulta al API de LastFM para obtener el top de canciones
 	public class LastAsync extends AsyncTask<Void, Void, Boolean> {
-		private static final String key = "2e321ea1e5efd535b9a261c211cefe78";
-		
-		private Context context;
+		Context context;
 		
 		private ProgressDialog pDialog;
 		
@@ -284,10 +296,16 @@ public class FragmentTopTracks  extends Fragment{
 		
 		@Override
 		protected Boolean doInBackground(Void... arg0) {
-			LastfmAPI LastFMAPI=new LastfmAPI();
-			Caller.getInstance().setCache(null);
-			lista_result_Fm=LastFMAPI.getTopTracks();
-		    return true;
+			try{
+				LastfmAPI LastFMAPI=new LastfmAPI();
+				Caller.getInstance().setCache(null);
+				lista_result_Fm=LastFMAPI.getTopTracks();
+				return true;
+			}
+			catch(Exception e){
+				return false;	
+			}
+			
 		}
 		
 		protected void onProgressUpdate(Integer... values) {
@@ -298,16 +316,23 @@ public class FragmentTopTracks  extends Fragment{
 		}
 		
 		protected void onPostExecute( Boolean  response) {
-			lstListado = (ListView)getView().findViewById(R.id.Lst_canciones_top);
-			registerForContextMenu(lstListado);
-			lstListado.setAdapter(new Adaptador(fragment));
-			pDialog.dismiss();
+			if(response){
+				lstListado = (ListView)getView().findViewById(R.id.Lst_canciones_top);
+				registerForContextMenu(lstListado);
+				lstListado.setAdapter(new Adaptador(fragment));
+				pDialog.dismiss();
+				}
+			else{
+				pDialog.dismiss();
+				Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
+			}
 		}
 		
 		
 	}	
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Clase asincronica para realizar la publicación de facebook con el video de youtube
 	public class Asyncrona extends AsyncTask<String , Void, Boolean> {
 		String artist;
 		String song;
