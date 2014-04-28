@@ -23,8 +23,8 @@ import android.widget.TextView;
 // Fragment encargado de manejar los tabs y su redireccionamiento hacia los nuevos fragments
 public class TabsFragment extends Fragment  implements OnTabChangeListener{
 	private static final String TAG = "FragmentTabs";
-	public static final String TAB_New_Artist = "1";
-	public static final String TAB_Personalized_Search = "2";
+	public static final String TAB_New_Artist = "2";
+	public static final String TAB_Personalized_Search = "1";
 
 	private View mRoot;
 	private TabHost mTabHost;
@@ -54,13 +54,13 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 		mTabHost.setOnTabChangedListener(this);
 		mTabHost.setCurrentTab(mCurrentTab);
 		// manually start loading stuff in the first tab
-		updateTab(TAB_New_Artist, R.id.tab_1);
+		updateTab(TAB_Personalized_Search, R.id.tab_1);
 	}
 
 	private void setupTabs() {
 		mTabHost.setup();
-		mTabHost.addTab(newTab(TAB_New_Artist, R.string.tab_New_Artist, R.id.tab_1));
-		mTabHost.addTab(newTab(TAB_Personalized_Search, R.string.tab_Personalized_Search, R.id.tab_2));
+		mTabHost.addTab(newTab(TAB_Personalized_Search, R.string.tab_Personalized_Search, R.id.tab_1));
+		mTabHost.addTab(newTab(TAB_New_Artist, R.string.tab_New_Artist, R.id.tab_2));
 	}
 
 	
@@ -90,8 +90,8 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 			EditText cancion= (EditText)this.getActivity().findViewById(R.id.getSong);
 			artista.setText(""); album.setText("");cancion.setText(""); 
 			
-			updateTab(tabId, R.id.tab_1);
-			mCurrentTab = 0;
+			updateTab(tabId, R.id.tab_2);
+			mCurrentTab = 1;
 			return;
 		}
 		if (TAB_Personalized_Search.equals(tabId)) {
@@ -101,25 +101,23 @@ public class TabsFragment extends Fragment  implements OnTabChangeListener{
 			buscar.setText("");
 			//buscar.setText("");
 			lstListado.setAdapter(null);
-			updateTab(tabId, R.id.tab_2);
-			mCurrentTab = 1;
+			updateTab(tabId, R.id.tab_1);
+			mCurrentTab = 0;
 			return;
 		}
 	}
 
-	
-	
 // Método encargado de realizar el cambio de tabs con el fragment asociado	
 	private void updateTab(String tabId, int placeholder) {
 		FragmentManager fm = getFragmentManager();
 
 		if (fm.findFragmentByTag(tabId) == null) {
-			if (tabId.equals("1")){
+			if (tabId.equals("2")){
 			fm.beginTransaction()
 					.replace(placeholder, new FragmentNewArtists(), tabId)
 					.commit();
 			}
-			if (tabId.equals("2")){
+			if (tabId.equals("1")){
 				fm.beginTransaction()
 						.replace(placeholder, new FragmentCustomSearch(), tabId)
 						.commit();

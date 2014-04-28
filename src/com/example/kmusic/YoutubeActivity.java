@@ -1,8 +1,17 @@
 package com.example.kmusic;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
-import APIS.MusixMatchAPI;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import APIS.Search;
 import Seguridad.InternetStatus;
 import android.app.Activity;
@@ -16,6 +25,7 @@ import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 
 import com.google.android.youtube.player.YouTubeBaseActivity;
@@ -34,7 +44,9 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
 	String Track;
 	String Album;
 	Activity context;
-	
+	InputStream salidaXMLLyrics = null;
+	TextView letra;
+	String lyrics;
 	protected void onCreate(Bundle savedInstanceState) {
 		
     	StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -44,30 +56,28 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
     	context=this;
     	if (new InternetStatus().haveNetworkConnection(this)){
 	    	Intent intent = getIntent();
-	    	
-	    	if(intent.getStringExtra("artista")!=null){
-	    		Artist=intent.getStringExtra("artista");
-	    		Track=intent.getStringExtra("cancion");
-	    		Album="";
-	    		cancion = Artist+" "+Track;
+	    	Artist=intent.getStringExtra("artist");
+	    	Track=intent.getStringExtra("track");
+	    	Album=intent.getStringExtra("album");
+	    	cancion = Artist+" "+Album+" "+Track;
+	    	try{	    	
+		    	YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
+		        youTubeView.initialize("AI39si4t1TOuQ5c_TtVD1aJRrdl2qARenjJqNMpttfmVTKnGe5G2MnQu86htSHjjIvAMHVCY3R3jml3zoz0Do-Huw5iWNHP99g", this);
+		        
+		        TextView title= (TextView) findViewById(R.id.titulo);
+		        title.setText(cancion);
+		        
+		        letra= (TextView) findViewById(R.id.letra);
+		        
+		        MyTaskObtenerLyric lyric = new MyTaskObtenerLyric();
+		        lyric.execute();
+		        /*Asyncrona lyrics= new Asyncrona(Artist, Track, letra);
+		        lyrics.execute();*/
 	    	}
-	    	else{
-	    		Artist=intent.getStringExtra("artist");
-	    		Track=intent.getStringExtra("track");
-	    		Album=intent.getStringExtra("album");
-	    		cancion = Artist+" "+Album+" "+Track;
+	    	catch(Exception e){
+	    		
+	    		
 	    	}
-	    	
-	    	
-	    	YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
-	        youTubeView.initialize("AI39si4t1TOuQ5c_TtVD1aJRrdl2qARenjJqNMpttfmVTKnGe5G2MnQu86htSHjjIvAMHVCY3R3jml3zoz0Do-Huw5iWNHP99g", this);
-	        
-	        TextView title= (TextView) findViewById(R.id.titulo);
-	        title.setText(cancion);
-	        
-	        TextView letra= (TextView) findViewById(R.id.letra);
-	        Asyncrona lyrics= new Asyncrona(Artist, Track, letra);
-	        lyrics.execute();
     	}
     	
     	else{
@@ -149,61 +159,107 @@ public class YoutubeActivity extends YouTubeBaseActivity implements YouTubePlaye
 	  }
 	  
 	  // Clase asincronica encarga de realizar la consulta al api de MusicXMatch para obtener las letras de la canciones
-	  public class Asyncrona extends AsyncTask<String , Void, Boolean> {
-			String Artist;
-			String Song;
-			String result;
-			TextView Lyric;
-			
-			
-			public Asyncrona(String Artista, String Cancion, TextView letra){
-				Artist=Artista;
-				Song=Cancion;
-				Lyric=letra;
-				
-				
+
+	  
+	  	private String XMLObtenerLyric(){
+			DocumentBuilderFactory factory = 
+					DocumentBuilderFactory.newInstance();
+
+			try{
+				DocumentBuilder builder = factory.newDocumentBuilder();
+				//Lectura completa del XML
+				Document dom = builder.parse(salidaXMLLyrics);
+				//Obtener nodo root
+				Element root = dom.getDocumentElement();
+
+
+				NodeList items = root.
+						getElementsByTagName("Lyric");
+
+				Node item = items.item(0);
+				lyrics =  item.getTextContent();
+
+				return lyrics;
+
 			}
+			//Error en el XML
+			catch (Exception ex) 
+			{
+				/* No se obtiene la letra
+				Actualizar GUI con el valor del atributo lyrics
+				que se setea en la siguiente linea*/
+				lyrics = "No hay letra";  
+				System.out.println("---No hay letra---"); 
+				return lyrics;
+				//throw new RuntimeException(ex);
+
+			} 		
+
+
+		}
+
+		private class MyTaskObtenerLyric extends AsyncTask<Void, Void, Boolean> {
+
 			@Override
-			protected Boolean doInBackground(String... params) {
-				// TODO Auto-generated method stub
+			protected void onPreExecute() {
+
+			}
+
+			@Override
+			protected Boolean doInBackground(Void... arg0) {
+
 				try{
-					MusixMatchAPI letra=new MusixMatchAPI();
-					result=letra.SearchLyric(Artist, Song);
-					
-					System.out.println(" Probando la letraaaaa");
-					return true;
-				}
-				catch(OutOfMemoryError exception){
-					exception.printStackTrace();
+					URL link ;
+					link = new URL("http://api.chartlyrics.com/apiv1."
+							+ "asmx/SearchLyricDirect?"
+							+ "artist=" + Artist
+							+ "&"
+							+ "song=" + Track
+							);
+
+					//Flujo de datos del API
+					salidaXMLLyrics = link.openConnection().
+							getInputStream();
+					// Revisi贸n del resultado obtenido
+					if (salidaXMLLyrics != null){ // Obtuv贸 datos
+						System.out.println("Se conecto");
+						return true;
+
+					}else{ // Fallo obteniendo datos
+						System.out.println("Contenido nulo");
+						return false;
+					}
+				}catch(Exception e){ //Error de conexi贸n
+					System.out.println("No se conecto");
 					return false;
 				}
-				catch(Exception e){
-					e.printStackTrace();
-					return false;	
-					
-				}
 			}
-			
-			protected void onPostExecute( Boolean  response) {
-				//System.out.println(result);
-				System.out.println(response);
-				if (response && result!=null){
-					Lyric.setMovementMethod(new ScrollingMovementMethod());
-					if(result.equals("Vacio")){
-						result="No se encontro la letra";
-					}
-						
-					
-					Lyric.setText(result);
+
+
+			@Override
+			protected void onPostExecute(Boolean valor) {
+				// La informaci贸n fue obtenida con 茅xito
+				if (valor){ 
+					/* caso de 茅xito
+								//Se procede a procesar el documento 
+								// XML consumido del API
+								// llamada al m茅todo parser */
+					letra.setText("\n"+ XMLObtenerLyric() +"\n");
+					letra.setMovementMethod(new ScrollingMovementMethod());
 				}
-				else {
-					Toast.makeText(context, "No se encontro la informaci髇 solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
-					Lyric.setText("No se encontro la letra");
+				else{ 
+					/* No se obtiene la letra
+								Actualizar GUI con el valor del atributo lyrics
+								que se setea en la siguiente linea*/
+					lyrics = "No hay letra";  
+					letra.setText(lyrics);
+					System.out.println("---No hay letra---");
 				}
-				
-				
+
+
 			}
-		}
+
+		}			
 
 }
 

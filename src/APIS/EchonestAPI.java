@@ -8,7 +8,8 @@ import com.echonest.api.v4.*;
 import java.util.ArrayList;
 
 public class EchonestAPI {
-//Atributos de la clase echonest
+	//Atributos de la clase echonest
+	
     public EchoNestAPI en;
     private  boolean trace = false;
 
@@ -58,39 +59,8 @@ public class EchonestAPI {
     	
     }
     
-// Metodo ques busca la biografia de un artista
 
-    public ArrayList<ObjectEchonest> searchArtistBiography(String name) throws EchoNestException {
-  	  int results=15;
-  
-  	  	
-	  	  ArrayList<ObjectEchonest> List_Echonest = new ArrayList<ObjectEchonest>();
-	  	  ArrayList<Artist> artists = (ArrayList<Artist>) en.searchArtists(name, results);
-	  	  
-	  	  for(Artist artist : artists){
-	  		  
-	  		  if (artist.getName().equals(name)){
-		  		  ObjectEchonest newEcho = new ObjectEchonest();
-		  		  newEcho.SetArtists(artist.getName());
-		  		  for (Biography bio:artist.getBiographies() ){
-		  			  if (bio.getText().length()>600){
-		  				newEcho.SetBiography(bio.getText());
-		  				  
-		  			  }
-		  			  
-		  		  }
-		  		  
-		  		  List_Echonest.add(newEcho);
-	  		  }
-	  	  }
-	  	  
-	  	  if(List_Echonest.size()==0){
-	  		  ObjectEchonest newEcho=new ObjectEchonest();
-	  		  newEcho.SetArtists(name);
-	  		  newEcho.SetBiography("No se encontro ninguna biografia correspondiente a este artista");
-	  		  List_Echonest.add(newEcho);
-	  	  }
-	  	  return List_Echonest;
-    }
-
+    
+    
+    
 }

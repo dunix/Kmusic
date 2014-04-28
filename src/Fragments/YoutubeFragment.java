@@ -57,13 +57,19 @@ private void init() {
 
         @Override
         public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
-            if (!wasRestored) { 
-            	YoutubeAsyn newAsyn=new YoutubeAsyn(player);
-            	newAsyn.execute(Artista);
+        	try{
+	            if (!wasRestored) { 
+	            	YoutubeAsyn newAsyn=new YoutubeAsyn(player);
+	            	newAsyn.execute(Artista);
+	            	}
+	            }
+        	catch(Exception e){
+        		
+        	}
                 
 				
             }
-        }
+        
     });
 }
 

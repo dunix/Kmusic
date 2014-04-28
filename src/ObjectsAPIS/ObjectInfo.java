@@ -1,10 +1,10 @@
 package ObjectsAPIS;
 //Clase objeto del info utilizado para los adaptadores
 public class ObjectInfo {
-	public String artist="";
-	public String album="";
-	public String cancion="";
-	
+	private String artist="";
+	private String album="";
+	private String cancion="";
+	private String imagen="";
 	/*
 	 * Metodos gets de los atributos
 	 */
@@ -25,6 +25,10 @@ public class ObjectInfo {
 		return album;
 		}
 
+		public String getImage(){
+			
+			return imagen;
+			}
 		
 		/*
 		 * Metodos sets de los atributos
@@ -45,6 +49,10 @@ public class ObjectInfo {
 			cancion=new_cancion;
 		}
 
+		public void setImagen(String new_imagen){
+			
+			imagen=new_imagen;
+		}
 		
 	
 

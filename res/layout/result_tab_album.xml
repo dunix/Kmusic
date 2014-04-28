@@ -20,5 +20,5 @@
         android:layout_below="@+id/NombreArtistaAlbumTab"
          >
     </ListView>
-
+ 
 </RelativeLayout>

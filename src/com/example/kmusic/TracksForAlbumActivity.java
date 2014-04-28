@@ -10,6 +10,7 @@ import APIS.LastfmAPI;
 import ObjectsAPIS.ObjectLastFM;
 import Seguridad.InternetStatus;
 import android.app.Activity;
+import android.app.ProgressDialog;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,6 +42,7 @@ public class TracksForAlbumActivity extends Activity{
 	String Album;
 	String Artista;
 	Button Comprar;
+	private static ProgressDialog pDialog;
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +55,12 @@ public class TracksForAlbumActivity extends Activity{
         Album=intent.getStringExtra("album");
         Titulo.setText(Artista+" "+Album+"\n");
         Titulo.setMovementMethod(new ScrollingMovementMethod());
+        
+        pDialog = new ProgressDialog(this);
+	    pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	    pDialog.setMessage("Procesando...");
+	   	pDialog.setCancelable(true);
+	   	pDialog.setMax(100);
         
         imagen  = (ImageView) findViewById(R.id.ImagenAlbumTab);
         
@@ -136,7 +144,11 @@ public class TracksForAlbumActivity extends Activity{
 			}
 			
 			protected void onPreExecute() {
+				pDialog.setProgress(0);
+				pDialog.show();
 			}
+			
+			
 			
 			@Override
 			protected Boolean doInBackground(String... data) {
@@ -153,11 +165,14 @@ public class TracksForAlbumActivity extends Activity{
 			    return true;
 			}
 			protected void onProgressUpdate(Integer... values) {
+				int progreso = values[0].intValue();
+				
+				pDialog.setProgress(progreso);
 			}
 			
 			protected void onPostExecute( Boolean  response) {
 				if (response){
-					 
+					pDialog.dismiss(); 
 					imagen.setImageBitmap(imagenAlbum);
 					listViewAlmbumResult.setAdapter(new Adaptador(activity));
 					listViewAlmbumResult.setOnItemClickListener(new OnItemClickListener() {
@@ -180,6 +195,7 @@ public class TracksForAlbumActivity extends Activity{
 				
 				}
 				else{
+					pDialog.dismiss();
 					Toast.makeText(activity, "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
 				
 				}

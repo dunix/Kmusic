@@ -15,38 +15,50 @@ import ObjectsAPIS.ObjectLastFM;
 import de.umass.lastfm.Artist;
 
 public class LastfmAPI {
+	
 	//Atributos de las clases
+	
 	private ArrayList<ObjectLastFM> ListFM=new ArrayList<ObjectLastFM>();
 	private static final String key = "2e321ea1e5efd535b9a261c211cefe78";
 	
+//--------------------------------------------------------Constructor de la clase--------------------------------------------------------------	
 	
 	public LastfmAPI(){
-		Caller.getInstance().setCache(null);
+		//Caller.getInstance().setCache(null);
 		
 	}
 	
-	// Metodo manejador de los Tops
-	public ArrayList<ObjectLastFM> transactionhandler(String parameterSearch, String value){
-		if(parameterSearch.equals("TopTracks")){
-			return getTopTracks();
-		}
-		else if(parameterSearch.equals("TopArtists")){
-			
-			return getTopArtists();
-			
-		}
-		else{
-			return ListFM;
-		}
-		
-	}
 	
-	// Metodo que busca la Imagen de un artista
+//---------------------------------------------------- Metodo que busca la Imagen de un artista-------------------------------------------------
 	
 	public String getImagen(String Artista){
 		String Imagen="";
 		Artist artista=Artist.getInfo(Artista, key);
 		Imagen=artista.getImageURL(ImageSize.EXTRALARGE);
+		if(Imagen!=null){
+			return Imagen;
+		}
+		return Imagen;
+		
+	}
+	
+//-----------------------------------------------------Metodo que imagen con distinta dimension--------------------------------------------------	
+	public String getImagen2(String Artista){
+		String Imagen="";
+		Artist artista=Artist.getInfo(Artista, key);
+		Imagen=artista.getImageURL(ImageSize.MEDIUM);
+		if(Imagen!=null){
+			return Imagen;
+		}
+		return Imagen;
+		
+	}
+	
+//---------------------------------------------------------Metodo con sobrecarga para imagenes del albums------------------------------------------
+	public String getImagen(String Artista,String album){
+		String Imagen="";
+		Album artista=Album.getInfo(Artista, album, key);
+		Imagen=artista.getImageURL(ImageSize.MEDIUM);
 		if(Imagen!=null){
 			return Imagen;
 		}
@@ -123,10 +135,10 @@ public class LastfmAPI {
 		for(Artist artist:tags){
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setArtista(artist.getName());
+			newObjectLastFM.setImagen(getImagen2(artist.getName()));
 			ListFM.add(newObjectLastFM);
 		}
-		
-		System.out.println(ListFM.size());
+	
 		return ListFM;
 	}
 
@@ -137,11 +149,12 @@ public class LastfmAPI {
 		
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setArtista(artist.getName());
+			newObjectLastFM.setImagen(getImagen2(artist.getName()));
 			ListFM.add(newObjectLastFM);
-			System.out.println(pais+"   "+newObjectLastFM.getArtista());
+			
 		}
 		
-		System.out.println(ListFM.size());
+		
 		return ListFM;
 	}
 	
@@ -153,14 +166,14 @@ public class LastfmAPI {
 		for(Artist artist:SimilarArtists){
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setArtista(artist.getName());
+			newObjectLastFM.setImagen(getImagen2(artist.getName()));
 			ListFM.add(newObjectLastFM);
 		}
-		
-		System.out.println(ListFM.size());
+	
 		return ListFM;
 	}
 	
-	//-------------Busqueda de Albums de un artista----------------------
+	//-------------Busqueda de Albums de un artista-----------------------------------------------------------
 
 	
 	public ArrayList<ObjectLastFM> getAlbums(String nameArtist){
@@ -171,27 +184,69 @@ public class LastfmAPI {
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setAlbum(newAlbum.getName());
 			if(newAlbum.getImageURL(ImageSize.MEDIUM)!=null){
-				newObjectLastFM.setImagen(newAlbum.getImageURL(ImageSize.LARGE));
+				newObjectLastFM.setImagen(newAlbum.getImageURL(ImageSize.MEDIUM));
+				System.out.println(newAlbum.getImageURL(ImageSize.MEDIUM));
 			}
 			ListFM.add(newObjectLastFM);
-			System.out.println(newObjectLastFM.getAlbum());
+			
 		}
 		return ListFM;
 	}
-	// Metodo de busqueda de canciones
+	
+	
+	
+	//----------------------------------------- Metodo de busqueda de canciones--------------------------------------------
 	public  ArrayList<ObjectLastFM> getTracks(String nameArtist,String nameAlbum ){
 		Album newAlbum=Album.getInfo(nameArtist, nameAlbum, key);
+		
+		//Track.g
 		for(Track newTrack:newAlbum.getTracks()){
 			ObjectLastFM newObjectLastFM= new ObjectLastFM();
 			newObjectLastFM.setCancion(newTrack.getName());
 			ListFM.add(newObjectLastFM);
-			System.out.println(newObjectLastFM.getCancion());
+		
 		
 	}
 		return ListFM;
 	}
 
+//------------------------------------ Método de biografía--------------------------------------------
+	
+	public  ArrayList<ObjectLastFM> geBiography(String name ){
+		
+		Artist artist = Artist.getInfo(name, key);
+		ObjectLastFM newObjectLastFM= new ObjectLastFM();
+		String bio = artist.getWikiText();
+		newObjectLastFM.setOther(bio);
+		newObjectLastFM.setImagen(getImagen(name));
+		ListFM.add(newObjectLastFM);
+		
+		return ListFM;
+	}
 	
 	
+	
+//--------------------------------------Metodo para la busqueda de canciones-------------------------------------------------------
+	public ArrayList<ObjectLastFM> searchTracks(String Song){
+		Collection<Track> track= Track.search(Song,key);
+		int cont=0;
+
+		for(Track newTrack:track){
+			if (cont==15) break;
+			ObjectLastFM newObjectLastFM= new ObjectLastFM();
+			newObjectLastFM.setArtista(newTrack.getArtist());
+			newObjectLastFM.setCancion(newTrack.getName());
+			Track a1= Track.getInfo(newObjectLastFM.getArtista(), newTrack.getName(), key);
+			newObjectLastFM.setAlbum(a1.getAlbum());
+			ListFM.add(newObjectLastFM);
+			
+			cont++;
+	
+		
+	}
+
+		return ListFM;
+		
+	}
 	
 }

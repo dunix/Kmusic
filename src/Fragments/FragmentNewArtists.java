@@ -2,6 +2,9 @@ package Fragments;
 
 //Fragment que permite buscar nuevos artista por diversos tipos de busqueda
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -13,6 +16,7 @@ import com.example.kmusic.ResultActivity;
 
 import APIS.EchonestAPI;
 import APIS.LastfmAPI;
+import Fragments.FragmentTopTracks.Adaptador.AsyncronaSetImage;
 
 import ObjectsAPIS.ObjectEchonest;
 import ObjectsAPIS.ObjectInfo;
@@ -21,8 +25,11 @@ import ObjectsAPIS.ObjectLastFM;
 import Seguridad.InternetStatus;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,10 +37,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -47,11 +56,13 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 	private	EchonestAPI EchoAPI;
 	private LastfmAPI LastFMAPI;
 	private ArrayList<ObjectInfo> Result;
+	ArrayList<ObjectLastFM> List_LastFM;
 	private RadioGroup opciones;
 	private SearchAsyncParam SearchAsyn;
 	private ListView lstListado=null;
 	private Fragment fragment;
-	
+	Button busca;
+	private static ProgressDialog pDialog;
 	 
 	public View onCreateView(LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState) {
 		View view=inflater.inflate(R.layout.fragment_new_artist,  container, false);
@@ -59,9 +70,10 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 		
 		
 		lstListado = (ListView)fragment.getActivity().findViewById(R.id.busqueda);
-		Button b=(Button) view.findViewById(R.id.button1); 
+		busca=(Button) view.findViewById(R.id.button1); 
+		
 		opciones = (RadioGroup) view.findViewById(R.id.radioGroup1);
-		b.setOnClickListener(this);
+		busca.setOnClickListener(this);
 		
 		if (! new InternetStatus().haveNetworkConnection(this.getActivity())){
 			Toast.makeText(this.getActivity(), "Advertencia no posee conexión a Internet", Toast.LENGTH_SHORT).show();
@@ -72,15 +84,30 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 	}
 	
 	/// Metodo del boton de busqueda 
+	@SuppressWarnings("static-access")
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		// get selected radio button from radioGroup
+		
+		pDialog = new ProgressDialog(this.getActivity());
+	    pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	    pDialog.setMessage("Procesando...");
+	   	pDialog.setCancelable(true);
+	   	pDialog.setMax(100);
+		
         int selectedId = opciones.getCheckedRadioButtonId();
         RadioButton opcion= (RadioButton) this.getActivity().findViewById(selectedId);
         EditText buscar= (EditText) this.getActivity().findViewById(R.id.obtenerartista);
+       
+        
+        InputMethodManager inputManager = (InputMethodManager)this.getActivity().getSystemService(this.getActivity().INPUT_METHOD_SERVICE); 
+
+        inputManager.hideSoftInputFromWindow(this.getActivity().getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+        
+  
         SearchAsyn= new SearchAsyncParam();
         Result=new ArrayList<ObjectInfo>();
+        
         if (new InternetStatus().haveNetworkConnection(this.getActivity())){
 			
         	
@@ -118,18 +145,17 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 		
 		for(ObjectLastFM ObjecFM: List_Lastfm){
 			ObjectInfo info=new ObjectInfo();
-			info.artist=ObjecFM.getArtista();
+			info.setArtista(ObjecFM.getArtista());
+			info.setImagen( ObjecFM.getImage());
 			Result.add(info);	
 		}
-		for (ObjectEchonest e: List_Echo){
-			System.out.println("esta es echooo   "+e.getArtist());
-		}
+		
 		boolean flag=false;
 		
 		while(List_Echo.size()!=0){
 			int cont=0;
 			while(cont!=Result.size()-1){
-				if(Result.get(cont).artist.toUpperCase().equals(List_Echo.get(0).getArtist().toUpperCase())){
+				if(Result.get(cont).getArtista().toUpperCase().equals(List_Echo.get(0).getArtist().toUpperCase())){
 					
 					flag=true;
 					
@@ -139,7 +165,9 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 			}
 			if (flag==false){
 				ObjectInfo info=new ObjectInfo();
-				info.artist=List_Echo.get(0).getArtist();
+				LastFMAPI=new LastfmAPI();
+				info.setArtista(List_Echo.get(0).getArtist());
+				info.setImagen(LastFMAPI.getImagen2(List_Echo.get(0).getArtist()));
 				Result.add(info);
 			}
 			flag=false;
@@ -152,9 +180,10 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 	
 	public void ParseList(ObjectLastFM Lastfm){
 		ObjectInfo info=new ObjectInfo();
-		info.cancion=Lastfm.getCancion();
-		info.artist=Lastfm.getArtista();
-		info.album=Lastfm.getAlbum();
+		info.setCancion(Lastfm.getCancion());
+		info.setArtista(Lastfm.getArtista());
+		info.setAlbum(Lastfm.getAlbum());
+		info.setImagen(Lastfm.getImage());
 		Result.add(info);
 		
 	}
@@ -162,13 +191,15 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 	// Clase asincrona que realiza la conexion con los APIS y obtiene los datos
 	
 	public class SearchAsyncParam extends AsyncTask<String, Void, Boolean> {
-		ArrayList<ObjectLastFM> List_LastFM;
+
 		ArrayList<ObjectEchonest> List_Echonests;
 
 		public  SearchAsyncParam(){
 		}
 		
 		protected void onPreExecute() {
+			pDialog.setProgress(0);
+			pDialog.show();
 		}
 		
 		@Override
@@ -181,9 +212,7 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 					for (ObjectLastFM o:List_LastFM){
 						ParseList(o);
 					}
-					for (ObjectInfo o:Result){
-						System.out.println("Pone play!!! "+o.artist+"  "+o.album+"  "+o.cancion);
-					}
+					
 				}
 				
 				//busqueda por artista similares
@@ -219,6 +248,9 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 		}
 		
 		protected void onProgressUpdate(Integer... values) {
+			int progreso = values[0].intValue();
+			
+			pDialog.setProgress(progreso);
 		}
 		
 		protected void onPostExecute( Boolean  response) {
@@ -242,8 +274,10 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 		            	
 		            }
 		        });
+				pDialog.dismiss();
 			}
 			else{
+				pDialog.dismiss();
 				Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
 			}
 				
@@ -277,11 +311,79 @@ public class FragmentNewArtists extends Fragment implements OnClickListener {
 					TextView LblCancionTop  = (TextView)item.findViewById(R.id.Cancion);
 					LblCancionTop.setText(Result.get(position).getCancion());
 			
+					ImageView imagen  = (ImageView)item.findViewById(R.id.imageViewResultados);
+					AsyncronaSetImage image=new AsyncronaSetImage(Result.get(position).getImage(),imagen);
+					image.execute();
+					
 				}
 				
 								
 				return (item);
 				
+			}
+		
+	
+	// Clase asincronica para poder realizar el set de imagenes	
+		public class AsyncronaSetImage extends AsyncTask<String , Void, Boolean> {
+			String imagen;
+			ImageView imag;
+			private Bitmap bitmap;
+			
+			public AsyncronaSetImage(String ima, ImageView i){
+				imagen = ima;
+				imag=i;
+				
+			}
+			
+			@Override
+			protected Boolean doInBackground(String... params) {
+				// TODO Auto-generated method stub
+
+		
+				try {
+					bitmap=getBitmapImagen(imagen);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				return true;
+			}
+			
+			protected void onPostExecute( Boolean  response) {
+				imag.setImageBitmap(bitmap);
+			}
+			
+			public Bitmap getBitmapImagen(String imagen){
+				// Realiza el set de la imagen correspondiente a listview de top tracks
+				try{
+					
+					if (imagen!=""){
+						URL url = new URL(imagen);
+						HttpURLConnection connection= (HttpURLConnection) url.openConnection();
+						connection.setDoInput(true);
+						connection.connect();
+						InputStream input =connection.getInputStream();
+						Bitmap bitM= BitmapFactory.decodeStream(input);
+						return bitM;
+					}
+					
+					URL url = new URL("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSy5__ZrEZMLWSnGvyQPZDHBiJH8WzL-qIIvq8kIdJqBL2IVhThYQ");
+					HttpURLConnection connection= (HttpURLConnection) url.openConnection();
+					connection.setDoInput(true);
+					connection.connect();
+					InputStream input =connection.getInputStream();
+					Bitmap bitM= BitmapFactory.decodeStream(input);
+					return bitM;
+					
+				}
+				catch(Exception e){
+					System.out.println("imagen vacia     "+ imagen);
+					e.printStackTrace();
+					
+					
+				}
+				return null;
+			}
 			}
 		
 		

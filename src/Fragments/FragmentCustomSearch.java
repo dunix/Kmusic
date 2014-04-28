@@ -7,8 +7,10 @@ import com.example.kmusic.R;
 import com.example.kmusic.ResultActivity;
 import java.util.ArrayList;
 import APIS.EchonestAPI;
+import APIS.LastfmAPI;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,7 +31,6 @@ import APIS.*;
 import ObjectsAPIS.ObjectEchonest;
 import ObjectsAPIS.ObjectInfo;
 import ObjectsAPIS.ObjectLastFM;
-import ObjectsAPIS.ObjectMusicXmatch;
 import ObjectsAPIS.ObjectSpotify;
 import Seguridad.InternetStatus;
 
@@ -39,13 +41,13 @@ import Seguridad.InternetStatus;
 public class FragmentCustomSearch extends Fragment implements OnClickListener {
 	EchonestAPI EchoAPI;
 	LastfmAPI LastFMAPI;
-	MusixMatchAPI MusixAPI;
 	SpotifyAPI SpotyAPI;
 	ArrayList<ObjectInfo> Result;
 	SearchAsyncParam1 SearchParam1;
 	SearchAsyncParam2  SearchParam2;
 	ListView lstListado=null;
 	Fragment fragment;
+	private static ProgressDialog pDialog;
 	
 	
 	public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		lstListado = (ListView)fragment.getActivity().findViewById(R.id.busqueda);
 		b.setOnClickListener(this);
 		
+		
+		
 		if (! new InternetStatus().haveNetworkConnection(this.getActivity())){
 			Toast.makeText(this.getActivity(), "Advertencia no posee conexión a Internet", Toast.LENGTH_SHORT).show();
 		}
@@ -65,7 +69,7 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 	}
 	
 	
-	// Metodo del boton buscar
+//-------------------------------------------------------------------- Metodo del boton buscar en donde se valida el tipo de busqueda a realizar--------------------------------------------------------------------
 	@Override
 	public void onClick(View v) {
 	
@@ -73,6 +77,17 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		EditText album= (EditText)this.getActivity().findViewById(R.id.getAlbum);
 		EditText cancion= (EditText)this.getActivity().findViewById(R.id.getSong);
 		Result = new ArrayList<ObjectInfo>();
+		
+		@SuppressWarnings("static-access")
+		InputMethodManager inputManager = (InputMethodManager)this.getActivity().getSystemService(this.getActivity().INPUT_METHOD_SERVICE); 
+		inputManager.hideSoftInputFromWindow(this.getActivity().getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+	    
+		pDialog = new ProgressDialog(this.getActivity());
+	    pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	    pDialog.setMessage("Procesando...");
+	   	pDialog.setCancelable(true);
+	   	pDialog.setMax(100);
+		
 		if (new InternetStatus().haveNetworkConnection(this.getActivity())){
 			if ((artista.getText().toString().compareTo("")==0)&& (album.getText().toString().compareTo("")==0) && ((cancion.getText().toString().compareTo("")!=0))){
 				SearchParam1=new SearchAsyncParam1();
@@ -92,6 +107,10 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 				SearchParam2=new SearchAsyncParam2();
 				SearchParam2.execute("ArtistAlbum",artista.getText().toString(), album.getText().toString());
 			}
+			else{
+				Toast.makeText(this.getActivity(), "Su parámetro de búsqueda no es válido", Toast.LENGTH_SHORT).show();
+				
+			}
 		}
 		else{
 			Toast.makeText(this.getActivity(), "Advertencia no posee conexión a Internet", Toast.LENGTH_SHORT).show();
@@ -106,25 +125,25 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 	}
 
 	
-	// Metodo que realiza el merge de los datos obtenidos los APIS
+//--------------------------------------- Metodo que realiza el merge de los datos obtenidos los APIS--------------------------------------------------------------------
 	
-	public ArrayList<ObjectInfo> Merge(ArrayList<ObjectMusicXmatch> L1, ArrayList<ObjectSpotify> L2){
+	public ArrayList<ObjectInfo> Merge(ArrayList<ObjectLastFM> L1, ArrayList<ObjectSpotify> L2){
 		
-		for(ObjectMusicXmatch a : L1){
+		for(ObjectLastFM a : L1){
+			System.out.println(a.getArtista()+a.getAlbum()+a.getCancion());
 			ObjectInfo info = new ObjectInfo();
-			info.cancion = a.getNombreCancion();
-			info.album = a.getNombreAlbum();
-			info.artist = a.getNombreArtista();
+			info.setCancion(a.getCancion());
+			info.setAlbum( a.getAlbum());
+			info.setArtista(  a.getArtista());
 			Result.add(info);
 		}
-		System.out.println(Result.size());
+	
 		boolean flag=false;
 		while(L2.size()!=0){
 			
 			int cont=0;
 			while(cont!=Result.size()-1){
-				if(Result.get(cont).artist.toUpperCase().equals(L2.get(0).getNombreArtista().toUpperCase())&& Result.get(cont).cancion.toUpperCase().equals(L2.get(0).getNombreCancion().toUpperCase())){
-					
+				if(Result.get(cont).getArtista().toUpperCase().equals(L2.get(0).getNombreArtista().toUpperCase())&& Result.get(cont).getCancion().toUpperCase().equals(L2.get(0).getNombreCancion().toUpperCase())){
 					flag=true;
 					break;
 					}
@@ -132,47 +151,43 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		}
 		if (flag==false){
 			ObjectInfo info=new ObjectInfo();
-			info.cancion=L2.get(0).getNombreCancion();
-			info.album=L2.get(0).getNombreAlbum();
-			info.artist=L2.get(0).getNombreArtista();
+			info.setCancion(L2.get(0).getNombreCancion());
+			info.setAlbum(L2.get(0).getNombreAlbum());
+			info.setArtista(L2.get(0).getNombreArtista());
 			Result.add(info);
 		}
 		flag=false;
 		L2.remove(0);
 		}
-		System.out.println(Result.size());
+
 		return Result;
 	}
 	
-	//Metodo que parse los objetos obtenidos de los API a objetos objectinfo para el adaptador
 	
-	public void ParseList(ObjectMusicXmatch MusicX){
-		ObjectInfo info = new ObjectInfo();
-		info.artist = MusicX.getNombreArtista();
-		info.album = MusicX.getNombreAlbum();
-		info.cancion = MusicX.getNombreCancion();
-		Result.add(info);
-	}
+//--------------------------------Metodo que parse los objetos obtenidos de los API a objetos objectinfo para el adaptador--------------------------------------
+	
+
 	
 	public void ParseList(ObjectEchonest Echonest){
 		ObjectInfo info = new ObjectInfo();
-		info.artist = Echonest.getArtist();
+		info.setArtista(Echonest.getArtist());
 		System.out.println(Echonest.getArtist());
 		Result.add(info);
 	}
 	
 	public void ParseList(ObjectLastFM Lastfm){
 		ObjectInfo info = new ObjectInfo();
-		info.cancion = Lastfm.getCancion();
-		info.artist = Lastfm.getArtista();
-		info.album = Lastfm.getAlbum();
+		info.setCancion(Lastfm.getCancion());
+		info.setArtista( Lastfm.getArtista());
+		info.setAlbum( Lastfm.getAlbum());
 		Result.add(info);
 		
 	}
 	
-	//----Clase Asincrona de Busqueda por un parametro-----------------
-	 class SearchAsyncParam1 extends AsyncTask<String, Void, Boolean> {
-		ArrayList<ObjectMusicXmatch> List_MusixMatch;
+//------------------------------------Clase Asincrona de Busqueda por un parametro---------------------------------------------------------------------------------
+	 
+	class SearchAsyncParam1 extends AsyncTask<String, Void, Boolean> {
+		ArrayList<ObjectLastFM> List_LastFM;
 		ArrayList<ObjectSpotify> List_Spotify;
 		ArrayList<ObjectEchonest> List_Echonest;
 
@@ -180,6 +195,8 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		}
 		
 		protected void onPreExecute() {
+			pDialog.setProgress(0);
+			pDialog.show();
 		}
 		
 		@Override
@@ -188,10 +205,10 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 				if(data[0].equals("Track")){
 					Result = new ArrayList<ObjectInfo>();;
 					SpotyAPI = new SpotifyAPI();
-					MusixAPI = new MusixMatchAPI();
-					List_MusixMatch = MusixAPI.SearchTrack(data[1]);
+					LastFMAPI = new LastfmAPI();
+					List_LastFM = LastFMAPI.searchTracks(data[1]);
 					List_Spotify = SpotyAPI.SearchTrack(data[1]);
-					Merge(List_MusixMatch, List_Spotify);
+					Merge(List_LastFM, List_Spotify);
 				}
 				
 				else if(data[0].equals("Artist")){
@@ -221,6 +238,8 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		   
 		}
 		protected void onProgressUpdate(Integer... values) {
+			int progreso = values[0].intValue();
+			pDialog.setProgress(progreso);
 		}
 		
 		
@@ -243,49 +262,43 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 	            	
 	            }
 	        });
+				
+			pDialog.dismiss();	
 			}
 			else{
+				pDialog.dismiss();	
 				Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
 			}
 		}	
 	}	
 
-	//----Clase Asincrona de Busqueda por dos parametros-----------------
+//------------------------------------Clase Asincrona de Busqueda por dos parametros---------------------------------------------------------------------------------
+	
 	public class SearchAsyncParam2 extends AsyncTask<String, Void, Boolean> {
-		ArrayList<ObjectMusicXmatch> List_MusixMatch;
 		ArrayList<ObjectLastFM> List_LastFM;
 
 		public  SearchAsyncParam2(){
-			List_MusixMatch= new ArrayList<ObjectMusicXmatch>();
 			List_LastFM = new ArrayList<ObjectLastFM>();
 		}
 		
 		protected void onPreExecute() {
+			pDialog.setProgress(0);
+			pDialog.show();
 		}
 		
 		@Override
 		protected Boolean doInBackground(String... data) {
 			try{
 				if(data[0].equals("ArtistTrack")){
-					
 					LastFMAPI = new LastfmAPI();
 					List_LastFM = LastFMAPI.getArtistsTracks(data[1], data[2]);
-					
 					for(ObjectLastFM newFM:List_LastFM){
 						ParseList(newFM);
-					}
-					
-					MusixAPI = new MusixMatchAPI();
-					List_MusixMatch = MusixAPI.SearchArtistTrack(data[1], data[2]);
-				
-					for(ObjectMusicXmatch newFM:List_MusixMatch){
-						ParseList(newFM);
-					}		
+					}	
 					
 				}
 				
 				else if(data[0].equals("ArtistAlbum")){
-					
 					LastFMAPI = new LastfmAPI();
 					List_LastFM = LastFMAPI.getArtistsAlbum(data[1], data[2]);
 					for(ObjectLastFM newFM:List_LastFM){
@@ -302,6 +315,8 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 		}
 		
 		protected void onProgressUpdate(Integer... values) {
+			int progreso = values[0].intValue();
+			pDialog.setProgress(progreso);
 		}
 		
 		protected void onPostExecute( Boolean  response) {
@@ -321,14 +336,20 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 	            	
 	            }
 	        });
+			
+				pDialog.dismiss();
 			}
 			else{
+				pDialog.dismiss();
 				Toast.makeText(getActivity(), "No se encontro la información solicitada o no tiene acceso a internet", Toast.LENGTH_SHORT).show();
 			}
 			
 		}	
 	}	
-		
+	
+	
+//--------------------------------Clase adaptador realiza el set del listview de la busqueda con objetos genericos independiente de las busquedas--------------------------------
+	
 	class Adaptador extends ArrayAdapter<ObjectInfo>{
 		Activity context;
 		
@@ -337,26 +358,29 @@ public class FragmentCustomSearch extends Fragment implements OnClickListener {
 			this.context = context.getActivity();
 			System.out.println("length ssss"+ Result.size());
 			
-			
 		}
 		
 		public View getView(int position,View convertView, ViewGroup parent){
 				
-			
-				LayoutInflater inflater = context.getLayoutInflater();
-				View item = inflater.inflate(R.layout.componentes_busqueda_nuevosartist, null);
-				if (Result.size()>0){
-					TextView LblArtista  = (TextView)item.findViewById(R.id.Artista);
-					LblArtista.setText(Result.get(position).getArtista());
+			LayoutInflater inflater = context.getLayoutInflater();
+			View item = inflater.inflate(R.layout.componentes_busqueda_nuevosartist, null);
+			if (Result.size()>0){
 					
-					TextView LblAlbum  = (TextView)item.findViewById(R.id.Album);
-					LblAlbum.setText(Result.get(position).getAlbum());
+				TextView LblArtista  = (TextView)item.findViewById(R.id.Artista);
+				LblArtista.setText(Result.get(position).getArtista());
 					
-					TextView LblCancionTop  = (TextView)item.findViewById(R.id.Cancion);
-					LblCancionTop.setText(Result.get(position).getCancion());
+				TextView LblAlbum  = (TextView)item.findViewById(R.id.Album);
+				LblAlbum.setText(Result.get(position).getAlbum());
+					
+				TextView LblCancionTop  = (TextView)item.findViewById(R.id.Cancion);
+				LblCancionTop.setText(Result.get(position).getCancion());
 			
-				}				
-				return (item);	
-			}
+			}				
+			return (item);
+			
+		}
+	
 	}
+
+
 }
